@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>cweb — Your link is ready</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #14161C;
+    --ink-soft: #565B68;
+    --bg: #F2F3F6;
+    --surface: #FFFFFF;
+    --border: #E1E3EA;
+    --accent: #3454D1;
+    --accent-ink: #FFFFFF;
+    --accent-soft: #EAEEFB;
+    --good: #1F9A6C;
+    --good-soft: #E7F6EF;
+    --bad: #C6432F;
+    --bad-soft: #FBEAE6;
+    --radius-s: 6px;
+    --radius-m: 10px;
+    --shadow: 0 1px 2px rgba(20,22,28,0.04), 0 8px 24px -12px rgba(20,22,28,0.12);
+
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    box-sizing: border-box;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #EDEEF2;
+      --ink-soft: #9BA0AD;
+      --bg: #14161C;
+      --surface: #1B1E26;
+      --border: #2A2D37;
+      --accent: #6C8CFF;
+      --accent-ink: #10121A;
+      --accent-soft: #1E2540;
+      --good: #4CC793;
+      --good-soft: #17301F;
+      --bad: #E2695A;
+      --bad-soft: #331B18;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -12px rgba(0,0,0,0.5);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ink: #EDEEF2;
+    --ink-soft: #9BA0AD;
+    --bg: #14161C;
+    --surface: #1B1E26;
+    --border: #2A2D37;
+    --accent: #6C8CFF;
+    --accent-ink: #10121A;
+    --accent-soft: #1E2540;
+    --good: #4CC793;
+    --good-soft: #17301F;
+    --bad: #E2695A;
+    --bad-soft: #331B18;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -12px rgba(0,0,0,0.5);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Space Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .wrap {
+    width: 100%;
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  header.top {
+    padding-top: calc(28px + env(safe-area-inset-top, 0px));
+    padding-bottom: 8px;
+  }
+
+  .top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .mark {
+    display: flex;
+    align-items: baseline;
+    font-weight: 700;
+    font-size: 20px;
+    letter-spacing: -0.01em;
+  }
+  .mark .dot { color: var(--accent); }
+
+  .theme-toggle {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--ink-soft);
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease;
+  }
+  .theme-toggle:hover { color: var(--ink); border-color: var(--ink-soft); }
+  .theme-toggle svg { width: 16px; height: 16px; }
+  .theme-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+  }
+
+  .card {
+    width: 100%;
+    text-align: center;
+    padding: 20px 0 40px;
+  }
+
+  .badge {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 22px;
+    border-radius: 50%;
+    background: var(--good-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: pop 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+  }
+  .badge svg { width: 26px; height: 26px; stroke: var(--good); }
+
+  @keyframes pop {
+    0% { transform: scale(0.6); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  h1 {
+    font-size: clamp(24px, 4.5vw, 30px);
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    margin: 0 0 8px;
+    font-weight: 700;
+  }
+
+  .sub {
+    color: var(--ink-soft);
+    font-size: 15px;
+    line-height: 1.5;
+    margin: 0 0 30px;
+  }
+
+  .short-box {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-m);
+    box-shadow: var(--shadow);
+    padding: 22px 20px;
+    margin-bottom: 14px;
+  }
+
+  .short-label {
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin: 0 0 10px;
+  }
+
+  .short-url {
+    font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
+    font-size: clamp(18px, 4.5vw, 22px);
+    font-weight: 500;
+    color: var(--accent);
+    text-decoration: none;
+    word-break: break-all;
+    display: inline-block;
+    margin-bottom: 18px;
+  }
+  .short-url:hover { text-decoration: underline; }
+
+  .actions {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  button.copy-btn, a.share-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 13.5px;
+    font-weight: 500;
+    padding: 10px 16px;
+    border-radius: var(--radius-s);
+    cursor: pointer;
+    text-decoration: none;
+    transition: border-color 0.15s ease, color 0.15s ease;
+  }
+  button.copy-btn:hover, a.share-btn:hover { border-color: var(--accent); color: var(--accent); }
+  button.copy-btn.copied { color: var(--good); border-color: var(--good); }
+  button.copy-btn svg, a.share-btn svg { width: 14px; height: 14px; }
+  button.copy-btn:focus-visible, a.share-btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .orig-row {
+    margin-top: 18px;
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+
+  .orig-row a {
+    color: var(--ink-soft);
+    text-decoration: none;
+  }
+  .orig-row a:hover { color: var(--ink); text-decoration: underline; }
+  .orig-url {
+    font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
+    font-size: 12.5px;
+    word-break: break-all;
+  }
+
+  .stats-row {
+    display: flex;
+    justify-content: center;
+    gap: 28px;
+    margin-top: 30px;
+    padding-top: 22px;
+    border-top: 1px solid var(--border);
+  }
+
+  .stat {
+    text-align: center;
+  }
+  .stat-num {
+    font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
+    font-size: 17px;
+    font-weight: 500;
+  }
+  .stat-label {
+    font-size: 11.5px;
+    color: var(--ink-soft);
+    margin-top: 2px;
+  }
+
+  .create-another {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 32px;
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .create-another:hover { text-decoration: underline; }
+  .create-another svg { width: 14px; height: 14px; }
+
+  footer {
+    padding: 18px 0 calc(24px + env(safe-area-inset-bottom, 0px));
+    text-align: center;
+    font-size: 12px;
+    color: var(--ink-soft);
+    border-top: 1px solid var(--border);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-row">
+    <div class="mark">cweb<span class="dot">.</span></div>
+    <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle dark mode">
+      <svg id="themeIcon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="4"/>
+        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+      </svg>
+    </button>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <div class="card">
+      <div class="badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 6L9 17l-5-5"/>
+        </svg>
+      </div>
+
+      <h1>Your link is ready</h1>
+      <p class="sub">It's short, it's live, and it's ready to share.</p>
+
+      <div class="short-box">
+        <p class="short-label">Your short link</p>
+        <a class="short-url" id="shortUrl" href="#" target="_blank" rel="noopener">{{base_url}}</a>
+        <div class="actions">
+          <button class="copy-btn" id="copyBtn" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            <span id="copyLabel">Copy link</span>
+          </button>
+          <a class="share-btn" id="visitBtn" href="{{base_url}}" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14L21 3"/></svg>
+            Open
+          </a>
+        </div>
+      </div>
+
+      <p class="orig-row">
+        Shortened from<br>
+        <span class="orig-url" id="origUrl">{{ long_url }}</span>
+      </p>
+
+
+      <a class="create-another" href="/">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+        Shorten another link
+      </a>
+    </div>
+  </div>
+</main>
+
+<footer>
+  cweb.
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---- theme (cosmetic only) ----
+  var root = document.documentElement;
+  var themeToggle = document.getElementById("themeToggle");
+  var THEME_KEY = "cweb_theme";
+
+  function applyTheme(t) {
+    if (t === "light" || t === "dark") root.setAttribute("data-theme", t);
+    else root.removeAttribute("data-theme");
+  }
+
+  try {
+    var saved = localStorage.getItem(THEME_KEY);
+    if (saved) applyTheme(saved);
+  } catch (e) {}
+
+  themeToggle.addEventListener("click", function () {
+    var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+    var current = root.getAttribute("data-theme") || (prefersDark ? "dark" : "light");
+    var next = current === "dark" ? "light" : "dark";
+    applyTheme(next);
+    try { localStorage.setItem(THEME_KEY, next); } catch (e) {}
+  });
+
+  // ---- populate from query string if this page was linked to with ?url=&code= ----
+  // Falls back to the placeholder example above when opened directly.
+  var params = new URLSearchParams(window.location.search);
+  var code = params.get("code");
+  var original = params.get("url");
+  var SHORT_DOMAIN = "cweb.io/";
+
+  var shortUrlEl = document.getElementById("shortUrl");
+  var visitBtn = document.getElementById("visitBtn");
+  var origUrlEl = document.getElementById("origUrl");
+  var currentShort = shortUrlEl.textContent.trim();
+
+  if (code) {
+    currentShort = SHORT_DOMAIN + code;
+    shortUrlEl.textContent = currentShort;
+  }
+  if (original) {
+    try {
+      var decoded = decodeURIComponent(original);
+      origUrlEl.textContent = decoded;
+      shortUrlEl.href = decoded;
+      visitBtn.href = decoded;
+    } catch (e) {}
+  }
+
+  // ---- copy ----
+  var copyBtn = document.getElementById("copyBtn");
+  var copyLabel = document.getElementById("copyLabel");
+
+  copyBtn.addEventListener("click", function () {
+    var text = currentShort;
+    var done = function (ok) {
+      copyBtn.classList.toggle("copied", ok);
+      copyLabel.textContent = ok ? "Copied" : "Copy link";
+      setTimeout(function () {
+        copyBtn.classList.remove("copied");
+        copyLabel.textContent = "Copy link";
+      }, 1600);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { done(true); }).catch(function () { done(false); });
+    } else {
+      try {
+        var ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+        done(true);
+      } catch (e) { done(false); }
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
