@@ -392,14 +392,14 @@
   <div class="wrap">
     <section class="hero">
       <h1>Shorten it once. Share it anywhere.</h1>
-      <p class="sub">Paste a long URL below and get a short link back in a second — no sign-up required.</p>
+      <p class="sub">Paste a long URL below and get a short link — no sign-up required.</p>
 
-      <form class="shorten" id="shortenForm" novalidate>
+      <form class="shorten" method="post" action="/shorten/" id="shortenForm" novalidate> {% csrf_token %}
         <div class="input-row">
           <input
             type="text"
             id="urlInput"
-            name="url"
+            name="long_url"
             inputmode="url"
             autocomplete="off"
             autocapitalize="off"
@@ -411,30 +411,10 @@
         </div>
         <div class="error-msg" id="errorMsg" role="alert"></div>
       </form>
-
-      <div class="result" id="result">
-        <a class="result-link" id="resultLink" href="#" target="_blank" rel="noopener"></a>
-        <button class="copy-btn" id="copyBtn" type="button">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-          <span id="copyLabel">Copy</span>
-        </button>
-      </div>
-    </section>
-
-    <section class="history" id="historySection">
-      <div class="history-head">
-        <h2>Recent links</h2>
-        <button class="clear-btn" id="clearBtn" type="button">Clear all</button>
-      </div>
-      <div class="hist-list" id="histList"></div>
-      <p class="empty-hint" id="emptyHint">Shortened links you create will show up here.</p>
     </section>
   </div>
 </main>
 
-<footer>
-  Front-end template — connect a real shortening API to make links resolve.
-</footer>
 
 <script>
 (function () {
@@ -465,165 +445,6 @@
     try { localStorage.setItem(THEME_KEY, next); } catch (e) {}
   });
 
-  // ---- helpers ----
-  function normalizeUrl(raw) {
-    var v = raw.trim();
-    if (!v) return null;
-    if (!/^https?:\/\//i.test(v)) v = "https://" + v;
-    try {
-      var u = new URL(v);
-      if (!u.hostname || u.hostname.indexOf(".") === -1) return null;
-      return u.href;
-    } catch (e) {
-      return null;
-    }
-  }
-
-  function hashCode(str) {
-    var chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    var h1 = 0x811c9dc5;
-    for (var i = 0; i < str.length; i++) {
-      h1 ^= str.charCodeAt(i);
-      h1 = Math.imul(h1, 0x01000193);
-    }
-    var seed = ((h1 >>> 0) ^ Date.now()) >>> 0;
-    var code = "";
-    for (var j = 0; j < 6; j++) {
-      seed = (Math.imul(seed, 48271) + 1) >>> 0;
-      code += chars[seed % chars.length];
-    }
-    return code;
-  }
-
-  function loadHistory() {
-    try {
-      var raw = localStorage.getItem(STORAGE_KEY);
-      return raw ? JSON.parse(raw) : [];
-    } catch (e) { return []; }
-  }
-
-  function saveHistory(list) {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); } catch (e) {}
-  }
-
-  function escapeHtml(s) {
-    return s.replace(/[&<>"']/g, function (c) {
-      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
-    });
-  }
-
-  function copyText(text, btn, labelEl) {
-    var done = function (ok) {
-      if (!btn) return;
-      btn.classList.toggle("copied", ok);
-      if (labelEl) labelEl.textContent = ok ? "Copied" : "Copy";
-      setTimeout(function () {
-        btn.classList.remove("copied");
-        if (labelEl) labelEl.textContent = "Copy";
-      }, 1600);
-    };
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).then(function () { done(true); }).catch(function () { done(false); });
-    } else {
-      try {
-        var ta = document.createElement("textarea");
-        ta.value = text;
-        ta.style.position = "fixed";
-        ta.style.opacity = "0";
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand("copy");
-        document.body.removeChild(ta);
-        done(true);
-      } catch (e) { done(false); }
-    }
-  }
-
-  // ---- state ----
-  var form = document.getElementById("shortenForm");
-  var input = document.getElementById("urlInput");
-  var errorMsg = document.getElementById("errorMsg");
-  var result = document.getElementById("result");
-  var resultLink = document.getElementById("resultLink");
-  var copyBtn = document.getElementById("copyBtn");
-  var copyLabel = document.getElementById("copyLabel");
-  var histList = document.getElementById("histList");
-  var emptyHint = document.getElementById("emptyHint");
-  var clearBtn = document.getElementById("clearBtn");
-
-  var SHORT_DOMAIN = "cweb.io/";
-  var currentShort = "";
-  var history = loadHistory();
-
-  function renderHistory() {
-    histList.innerHTML = "";
-    if (!history.length) {
-      emptyHint.style.display = "block";
-      return;
-    }
-    emptyHint.style.display = "none";
-    history.slice(0, 8).forEach(function (item) {
-      var row = document.createElement("div");
-      row.className = "hist-item";
-      row.innerHTML =
-        '<div class="hist-item-text">' +
-          '<a href="' + escapeHtml(item.original) + '" target="_blank" rel="noopener">' + SHORT_DOMAIN + escapeHtml(item.code) + '</a>' +
-          '<div class="orig">' + escapeHtml(item.original) + '</div>' +
-        '</div>' +
-        '<button class="hist-copy" type="button" aria-label="Copy link" data-code="' + escapeHtml(item.code) + '">' +
-          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>' +
-        '</button>';
-      histList.appendChild(row);
-    });
-
-    Array.prototype.forEach.call(histList.querySelectorAll(".hist-copy"), function (btn) {
-      btn.addEventListener("click", function () {
-        copyText(SHORT_DOMAIN + btn.getAttribute("data-code"), btn, null);
-      });
-    });
-  }
-
-  form.addEventListener("submit", function (e) {
-    e.preventDefault();
-    errorMsg.textContent = "";
-    var normalized = normalizeUrl(input.value);
-
-    if (!input.value.trim()) {
-      errorMsg.textContent = "Paste a URL to shorten.";
-      input.focus();
-      return;
-    }
-    if (!normalized) {
-      errorMsg.textContent = "That doesn't look like a valid URL.";
-      input.focus();
-      return;
-    }
-
-    var code = hashCode(normalized);
-    currentShort = SHORT_DOMAIN + code;
-    resultLink.textContent = currentShort;
-    resultLink.href = normalized;
-    result.classList.add("show");
-
-    history.unshift({ code: code, original: normalized, ts: Date.now() });
-    history = history.slice(0, 20);
-    saveHistory(history);
-    renderHistory();
-
-    input.value = "";
-  });
-
-  copyBtn.addEventListener("click", function () {
-    if (currentShort) copyText(currentShort, copyBtn, copyLabel);
-  });
-
-  clearBtn.addEventListener("click", function () {
-    history = [];
-    saveHistory(history);
-    renderHistory();
-  });
-
-  renderHistory();
 })();
 </script>
 

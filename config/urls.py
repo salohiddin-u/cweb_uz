@@ -17,6 +17,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+from mapping.views import *
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('shorten/', shorten),
+    path('', index),
+    path('created/<str:short_id>/', created),
+    path('<str:short_id>/', url_redirect),
+
 ]
